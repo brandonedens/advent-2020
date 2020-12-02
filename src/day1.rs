@@ -22,7 +22,7 @@ pub fn day1() -> Result<()> {
 
     for (e, v1) in expenses.iter().enumerate() {
         for (e, v2) in expenses[..e + 1].iter().enumerate() {
-            for (e, v3) in expenses[..e + 1].iter().enumerate() {
+            for v3 in expenses[..e + 1].iter() {
                 if v1 + v2 + v3 == DESIRED_SUM {
                     println!("{} * {} * {} = {}", v1, v2, v3, v1 * v2 * v3);
                     break;
