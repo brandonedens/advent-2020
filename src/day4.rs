@@ -22,73 +22,91 @@ iyr:2011 ecl:brn hgt:59in"#;
 
     let re = Regex::new("(byr|iyr|eyr|hgt|hcl|ecl|pid):([#0-9a-zA-Z]+)")?;
 
-    let num_valid_passports = split_passports
-        .split(passports)
-        .filter(|passport| {
-            let fields: HashMap<&str, &str> = passport
-                .split_whitespace()
-                .filter_map(|kv| {
-                    re.captures(kv).map(|caps| {
-                        (
-                            caps.get(1).map(|m| m.as_str()).unwrap(),
-                            caps.get(2).map(|m| m.as_str()).unwrap(),
-                        )
-                    })
+    let part1_validation = |fields: HashMap<&str, &str>| {
+        fields.contains_key(&"byr")
+            && fields.contains_key(&"iyr")
+            && fields.contains_key(&"eyr")
+            && fields.contains_key(&"hgt")
+            && fields.contains_key(&"hcl")
+            && fields.contains_key(&"ecl")
+            && fields.contains_key(&"pid")
+    };
+
+    let part2_validation = |fields: HashMap<&str, &str>| {
+        if fields.contains_key(&"byr")
+            && fields.contains_key(&"iyr")
+            && fields.contains_key(&"eyr")
+            && fields.contains_key(&"hgt")
+            && fields.contains_key(&"hcl")
+            && fields.contains_key(&"ecl")
+            && fields.contains_key(&"pid")
+        {
+            let byr_val = fields.get("byr").unwrap().parse::<u32>().unwrap();
+            let iyr_val = fields.get("iyr").unwrap().parse::<u32>().unwrap();
+            let eyr_val = fields.get("eyr").unwrap().parse::<u32>().unwrap();
+
+            let hgt_val = fields.get("hgt").unwrap();
+            let hcl_val = fields.get("hcl").unwrap();
+            let eye_colors = vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+            let ecl_val = fields.get("ecl").unwrap();
+            let pid_val = fields.get("pid").unwrap();
+
+            byr_val >= 1920
+                && byr_val <= 2002
+                && iyr_val >= 2010
+                && iyr_val <= 2020
+                && eyr_val >= 2020
+                && eyr_val <= 2030
+                && if hgt_val.ends_with("cm") {
+                    let z = hgt_val.replace("cm", "").parse::<u32>().unwrap();
+                    z >= 150 && z <= 193
+                } else if hgt_val.ends_with("in") {
+                    let z = hgt_val.replace("in", "").parse::<u32>().unwrap();
+                    z >= 59 && z <= 76
+                } else {
+                    false
+                }
+                && hcl_val.starts_with("#")
+                && hcl_val.chars().skip(1).count() == 6
+                && hcl_val.chars().skip(1).all(|c| {
+                    let c = c as u8;
+                    (c >= '0' as u8 && c <= '9' as u8) || (c >= 'a' as u8 && c <= 'f' as u8)
                 })
-                .collect();
+                && eye_colors.contains(ecl_val)
+                && pid_val.len() == 9
+                && pid_val.chars().all(|c| {
+                    let c = c as u8;
+                    c >= '0' as u8 && c <= '9' as u8
+                })
+        } else {
+            false
+        }
+    };
 
-            if fields.contains_key(&"byr")
-                && fields.contains_key(&"iyr")
-                && fields.contains_key(&"eyr")
-                && fields.contains_key(&"hgt")
-                && fields.contains_key(&"hcl")
-                && fields.contains_key(&"ecl")
-                && fields.contains_key(&"pid")
-            {
-                let byr_val = fields.get("byr").unwrap().parse::<u32>().unwrap();
-                let iyr_val = fields.get("iyr").unwrap().parse::<u32>().unwrap();
-                let eyr_val = fields.get("eyr").unwrap().parse::<u32>().unwrap();
-
-                let hgt_val = fields.get("hgt").unwrap();
-                let hcl_val = fields.get("hcl").unwrap();
-                let eye_colors = vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
-                let ecl_val = fields.get("ecl").unwrap();
-                let pid_val = fields.get("pid").unwrap();
-
-                byr_val >= 1920
-                    && byr_val <= 2002
-                    && iyr_val >= 2010
-                    && iyr_val <= 2020
-                    && eyr_val >= 2020
-                    && eyr_val <= 2030
-                    && if hgt_val.ends_with("cm") {
-                        let z = hgt_val.replace("cm", "").parse::<u32>().unwrap();
-                        z >= 150 && z <= 193
-                    } else if hgt_val.ends_with("in") {
-                        let z = hgt_val.replace("in", "").parse::<u32>().unwrap();
-                        z >= 59 && z <= 76
-                    } else {
-                        false
-                    }
-                    && hcl_val.starts_with("#")
-                    && hcl_val.chars().skip(1).count() == 6
-                    && hcl_val.chars().skip(1).all(|c| {
-                        let c = c as u8;
-                        (c >= '0' as u8 && c <= '9' as u8) || (c >= 'a' as u8 && c <= 'f' as u8)
+    let process_passports = |validation: fn(HashMap<&str, &str>) -> bool| {
+        let num_valid_passports = split_passports
+            .split(passports)
+            .filter(|passport| {
+                let fields: HashMap<&str, &str> = passport
+                    .split_whitespace()
+                    .filter_map(|kv| {
+                        re.captures(kv).map(|caps| {
+                            (
+                                caps.get(1).map(|m| m.as_str()).unwrap(),
+                                caps.get(2).map(|m| m.as_str()).unwrap(),
+                            )
+                        })
                     })
-                    && eye_colors.contains(ecl_val)
-                    && pid_val.len() == 9
-                    && pid_val.chars().all(|c| {
-                        let c = c as u8;
-                        c >= '0' as u8 && c <= '9' as u8
-                    })
-            } else {
-                false
-            }
-        })
-        .count();
+                    .collect();
+                validation(fields)
+            })
+            .count();
 
-    println!("num valid passports: {}", num_valid_passports);
+        println!("num valid passports: {}", num_valid_passports);
+    };
+
+    process_passports(part1_validation);
+    process_passports(part2_validation);
 
     Ok(())
 }
