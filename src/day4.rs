@@ -49,10 +49,6 @@ iyr:2011 ecl:brn hgt:59in"#;
                 let iyr_val = fields.get("iyr").unwrap().parse::<u32>().unwrap();
                 let eyr_val = fields.get("eyr").unwrap().parse::<u32>().unwrap();
 
-                enum Height {
-                    Cm(usize),
-                    In(usize),
-                }
                 let hgt_val = fields.get("hgt").unwrap();
                 let hcl_val = fields.get("hcl").unwrap();
                 let eye_colors = vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
@@ -74,17 +70,12 @@ iyr:2011 ecl:brn hgt:59in"#;
                     } else {
                         false
                     }
-                    && if hcl_val.starts_with("#") {
-                        let hcl_val = hcl_val.replace("#", "");
-                        hcl_val.trim().chars().count() == 6
-                            && hcl_val.trim().chars().all(|c| {
-                                let c = c as u8;
-                                (c >= '0' as u8 && c <= '9' as u8)
-                                    || (c >= 'a' as u8 && c <= 'f' as u8)
-                            })
-                    } else {
-                        false
-                    }
+                    && hcl_val.starts_with("#")
+                    && hcl_val.chars().skip(1).count() == 6
+                    && hcl_val.chars().skip(1).all(|c| {
+                        let c = c as u8;
+                        (c >= '0' as u8 && c <= '9' as u8) || (c >= 'a' as u8 && c <= 'f' as u8)
+                    })
                     && eye_colors.contains(ecl_val)
                     && pid_val.len() == 9
                     && pid_val.chars().all(|c| {
