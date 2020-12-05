@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 
 fn parse_boarding_pass(boarding_pass: &str) -> Result<u32> {
     let bin_val = boarding_pass
@@ -20,16 +20,15 @@ pub fn day5() -> Result<()> {
         .unwrap();
     println!("highest seat id: {}", highest_seat_id);
 
-    let seats: BTreeSet<u32> = boarding_passes
+    let seats: HashSet<_> = boarding_passes
         .lines()
         .map(|pass| parse_boarding_pass(pass).unwrap())
         .collect();
-    let last_seat = seats.iter().rev().next().unwrap();
-    let last_row = last_seat / 8;
+    let last_row = highest_seat_id / 8;
 
-    let all_seats: BTreeSet<u32> = (8..(last_row * 8)).collect();
+    let all_seats: HashSet<_> = (8..(last_row * 8)).collect();
 
-    let empty_seat: BTreeSet<_> = all_seats.difference(&seats).collect();
+    let empty_seat: HashSet<_> = all_seats.difference(&seats).collect();
     assert_eq!(empty_seat.len(), 1);
     println!("empty seat: {}", empty_seat.iter().next().unwrap());
 
