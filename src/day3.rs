@@ -1,5 +1,4 @@
 use anyhow::Result;
-use std::fs;
 
 fn count_num_trees(map: &str, slope: (usize, usize)) -> usize {
     let lines: Vec<&str> = map.lines().collect();
