@@ -3,6 +3,7 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 
 use anyhow::Result;
 use day1::*;
@@ -10,6 +11,7 @@ use day2::*;
 use day3::*;
 use day4::*;
 use day5::*;
+use day6::*;
 
 fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -35,6 +37,9 @@ fn main() -> Result<()> {
             }
             "day5" | "5" => {
                 day5()?;
+            }
+            "day6" | "6" => {
+                day6()?;
             }
             _ => {
                 eprintln!("Invalid day specification.");
